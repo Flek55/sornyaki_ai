@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "445844791463",
+    "project_id": "sornyaki-ai",
+    "storage_bucket": "sornyaki-ai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445844791463:android:9933d6685bf20a45ce3b82",
+        "android_client_info": {
+          "package_name": "com.example.sornyaki_ai.sornyaki_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3V_H9LeaJxZRRudWxMyKyNB_ZQcd07JU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
