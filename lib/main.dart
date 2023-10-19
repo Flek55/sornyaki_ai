@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sornyaki_ai/start.dart';
 import 'package:sornyaki_ai/theme.dart';
 import 'db_link.dart';
@@ -16,6 +17,7 @@ Future<void> main() async {
   await LinkToScript.gl();
   runApp(MaterialApp(
     theme: theme(),
+    builder: EasyLoading.init(),
     debugShowCheckedModeBanner: false,
     initialRoute: '/',
     routes: {

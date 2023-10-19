@@ -352,6 +352,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  network_to_file_image:
+    dependency: "direct main"
+    description:
+      name: network_to_file_image
+      sha256: "47528730539abf61ea9b5edf30fe2803b5f8212b2049e1a6cb3b564acadc46dc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
   path:
     dependency: "direct main"
     description:
@@ -361,7 +369,7 @@ packages:
     source: hosted
     version: "1.8.3"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       sha256: a1aa8aaa2542a6bc57e381f132af822420216c80d4781f7aa085ca3229208aaa

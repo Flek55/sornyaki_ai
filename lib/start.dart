@@ -1,13 +1,13 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:async/async.dart';
 import 'package:path/path.dart' as p;
-import 'package:file_saver/file_saver.dart';
+import 'package:path_provider/path_provider.dart';
 import 'db_link.dart';
 import 'files.dart';
 
@@ -28,13 +28,31 @@ class StartState extends State<Start> {
   static bool isFileLoaded = false;
   static bool isResponsed = false;
   static Map<String, dynamic> jsondata = {};
+  static Uint8List? maskbyteslist;
+  static File? mask;
 
   XFile? image;
   static String url = "";
-  var data = "";
-  String testText = "";
+  var purl = "";
+  bool _buttonsEnabled = true;
 
   final ImagePicker picker = ImagePicker();
+
+  Future parseMask() async{
+    http.Response pj = await http.get(Uri.parse("${url}fotochka"));
+    Uint8List maskbytes =  pj.bodyBytes;
+    Directory root = await getTemporaryDirectory();
+    String directoryPath = root.path + '/bozzetto_camera';
+    await Directory(directoryPath).create(recursive: true);
+    String filePath = '$directoryPath/received_data.jpg';
+    await File(filePath).writeAsBytes(maskbytes);
+    XFile p = XFile(filePath);
+    setState(() {
+      image = p;
+      mask = File(p.path);
+    });
+  }
+
 
   Future upload(File imageFile) async {
     var stream = http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
@@ -50,6 +68,7 @@ class StartState extends State<Start> {
     setState(() {
       isResponsed = true;
     });
+    await parseMask();
   }
 
   Future getImage(ImageSource media) async {
@@ -167,14 +186,14 @@ class StartState extends State<Start> {
     if (isResponsed) {
       return ElevatedButton(
         onPressed: () async {
-          await saveJson();
+          await savePhoto();
         },
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        child: const Text("Скачать фото"),
+        child: const Text("Скачать маску"),
       );
     }
     return const SizedBox();
@@ -187,10 +206,18 @@ class StartState extends State<Start> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () async {
+              onPressed: _buttonsEnabled?() async {
+                EasyLoading.show();
+                setState(() {
+                  _buttonsEnabled = false;
+                });
                 File file = File(image!.path);
                 await upload(file);
-              },
+                EasyLoading.dismiss();
+                setState(() {
+                  _buttonsEnabled = true;
+                });
+              }: null,
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -207,9 +234,9 @@ class StartState extends State<Start> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: _buttonsEnabled?() {
                 chooseFilePopUp();
-              },
+              }:null,
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
