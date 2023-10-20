@@ -87,6 +87,7 @@ class StartState extends State<Start> {
   ///Загрузка фото из галереи/камеры в приложение
   Future getImage(ImageSource media) async {
     var img = await picker.pickImage(source: media);
+    ///Проверка на не пустоту файла картинки
     if (img != null) {
       setState(() {
         image = img;
@@ -306,7 +307,7 @@ class StartState extends State<Start> {
                   ElevatedButton( ///Из галереи
                     onPressed: () async {
                       Navigator.pop(context);
-                      var response = await getImage(ImageSource.gallery);
+                      await getImage(ImageSource.gallery);
                     },
                     child: const Row(
                       children: [
@@ -321,7 +322,7 @@ class StartState extends State<Start> {
                   ElevatedButton( ///Из камеры
                     onPressed: () async {
                       Navigator.pop(context);
-                      var response = await getImage(ImageSource.camera);
+                      await getImage(ImageSource.camera);
                     },
                     child: const Row(
                       children: [
