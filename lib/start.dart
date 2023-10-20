@@ -34,10 +34,8 @@ class StartState extends State<Start> {
   bool _buttonsEnabled = true;
   bool _isJsonHere = false;
 
-  ///Счетчикики ответов
-  int osot = -1;
-  int bodyak = -1;
-  int schavel = -1;
+  ///Счетчикики сорняков
+  Map<String, dynamic> sornyaki = {};
 
   ///Переменная для хранения полученных с сервера данных
   static Map<String, dynamic> jsondata = {};
@@ -72,6 +70,8 @@ class StartState extends State<Start> {
   ///Метод для отправки запроса на сервер. Запрос состоит из фото для обработки
   ///Как reponse получает json файл с ответом
   Future upload(File imageFile) async {
+    http.Response cookieresp = await http.get(Uri.parse(url+"cookie/"));//Отправка запроса, чтобы на сервере создались папки для сохранения сессии
+    print(cookieresp.body.toString());
     var stream = http.ByteStream(imageFile.openRead());
     var length = await imageFile.length();
     var uri = Uri.parse(url.trim());
@@ -81,6 +81,7 @@ class StartState extends State<Start> {
     request.files.add(multipartFile);
     http.StreamedResponse response = await request.send();
     http.Response r = await http.Response.fromStream(response);
+    print(r.body.toString());
     jsondata = jsonDecode(r.body.toString());
     await parseMask();
     setState(() {
@@ -108,20 +109,9 @@ class StartState extends State<Start> {
 
   ///Подсчет количества сорняков какого-то типа
   int parseJsonData() {
-    List a = jsondata["predictions"];
-    bodyak = 0;
-    osot = 0;
-    schavel = 0;
-    for (int i = 0; i < a.length; i++) {
-      Map<String, dynamic> b = a[i];
-      if (b["class"] == 0) {
-        bodyak += 1;
-      } else if (b["class"] == 1) {
-        osot += 1;
-      } else if (b["class"] == 2) {
-        schavel += 1;
-      }
-    }
+    sornyaki["bodyak"] = jsondata["bodyak_num"];
+    sornyaki["osot"] = jsondata["osot_num"];
+    sornyaki["horse_sorrel"] = jsondata["horse_sorrel_num"];
     setState(() {});
     return 1;
   }
@@ -170,7 +160,7 @@ class StartState extends State<Start> {
           Visibility(
             visible: _isJsonHere,
             child: Text(
-              "Осот: $osot Бодяк: $bodyak Щавель: $schavel",
+              "Осот: " + sornyaki["osot"].toString() +" Бодяк: "+sornyaki["bodyak"].toString()+" Щавель: "+sornyaki["horse_sorrel"].toString(),
               style: TextStyle(fontSize: 19),
             ),
           ),

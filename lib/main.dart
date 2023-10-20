@@ -5,9 +5,10 @@ import 'package:sornyaki_ai/start.dart';
 import 'package:sornyaki_ai/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'api.dart';
 import 'db_link.dart';
 
-const supabaseUrl = 'https://abveqxcfpcsfsmmalpqy.supabase.co';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,7 @@ Future<void> main() async {
   ///Делает приложение неповоротным на экране
   await Supabase.initialize(
     url: supabaseUrl,
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFidmVxeGNmcGNzZnNtbWFscHF5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5Nzc3ODMwNiwiZXhwIjoyMDEzMzU0MzA2fQ.zZsIop4oVbprQhCqxYHOGqyoPa4TAnXa0hb1R6I3Wa8',
+    anonKey: anonkey,
   );
 
   ///Подключение к бд
