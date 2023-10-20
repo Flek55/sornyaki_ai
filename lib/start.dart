@@ -34,6 +34,11 @@ class StartState extends State<Start> {
   bool _buttonsEnabled = true;
   bool _isJsonHere = false;
 
+  ///Счетчикики ответов
+  int osot = -1;
+  int bodyak = -1;
+  int schavel = -1;
+
   ///Переменная для хранения полученных с сервера данных
   static Map<String, dynamic> jsondata = {};
 
@@ -82,11 +87,13 @@ class StartState extends State<Start> {
       isResponsed = true;
       _isJsonHere = true;
     });
+    parseJsonData();
   }
 
   ///Загрузка фото из галереи/камеры в приложение
   Future getImage(ImageSource media) async {
     var img = await picker.pickImage(source: media);
+
     ///Проверка на не пустоту файла картинки
     if (img != null) {
       setState(() {
@@ -97,6 +104,28 @@ class StartState extends State<Start> {
     if (image != null) {
       isFileLoaded = true;
     }
+  }
+
+  ///Подсчет количества сорняков какого-то типа
+  int parseJsonData() {
+    List a = jsondata["predictions"];
+    bodyak = 0;
+    osot = 0;
+    schavel = 0;
+    for (int i = 0; i < a.length; i++) {
+      Map<String, dynamic> b = a[i];
+      if (b["class"] == 0) {
+        bodyak += 1;
+      } else if (b["class"] == 1) {
+        osot += 1;
+      } else if (b["class"] == 2) {
+        schavel += 1;
+      }
+    }
+    setState(() {
+
+    });
+    return 1;
   }
 
   ///Функция возвращает виджет, который доступен как '/' в приложении
@@ -121,7 +150,9 @@ class StartState extends State<Start> {
             child: const Padding(padding: EdgeInsets.only(top: 75)),
           ),
           _getLoadFileButton(),
-          image != null ///Вывод картинки на экран
+          image != null
+
+              ///Вывод картинки на экран
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ClipRRect(
@@ -140,12 +171,17 @@ class StartState extends State<Start> {
                   top: MediaQuery.of(context).size.height / 150)),
           Visibility(
             visible: _isJsonHere,
-            child: Text("Результат: ", style: TextStyle(fontSize: 19),),
+            child: Text(
+              "Осот: $osot Бодяк: $bodyak Щавель: $schavel",
+              style: TextStyle(fontSize: 19),
+            ),
           ),
           Visibility(
-            visible: !_isJsonHere,
-            child: Padding(padding: EdgeInsets.only(top: 22),)
-          ),
+              visible: !_isJsonHere,
+              child: const Padding(
+                padding: EdgeInsets.only(top: 22),
+              )),
+
           ///Группа кнопок под фото
           Padding(
               padding: EdgeInsets.only(
@@ -241,7 +277,8 @@ class StartState extends State<Start> {
           children: [
             ElevatedButton(
               onPressed: _buttonsEnabled
-                  ? () async {  ///Блокировка кнопки и вызов функций
+                  ? () async {
+                      ///Блокировка кнопки и вызов функций
                       EasyLoading.show();
                       setState(() {
                         _buttonsEnabled = false;
@@ -272,7 +309,8 @@ class StartState extends State<Start> {
           children: [
             ElevatedButton(
               onPressed: _buttonsEnabled
-                  ? () { ///Блокировка кнопки и вызов функций
+                  ? () {
+                      ///Блокировка кнопки и вызов функций
                       chooseFilePopUp();
                     }
                   : null,
@@ -290,7 +328,6 @@ class StartState extends State<Start> {
     return const SizedBox();
   }
 
-
   //AlertDialog для выбора способа выбора фото (Из галереи/Из камеры)
   void chooseFilePopUp() {
     showDialog(
@@ -304,7 +341,8 @@ class StartState extends State<Start> {
               height: MediaQuery.of(context).size.height / 6,
               child: Column(
                 children: [
-                  ElevatedButton( ///Из галереи
+                  ElevatedButton(
+                    ///Из галереи
                     onPressed: () async {
                       Navigator.pop(context);
                       await getImage(ImageSource.gallery);
@@ -319,7 +357,8 @@ class StartState extends State<Start> {
                   Padding(
                       padding: EdgeInsets.only(
                           top: MediaQuery.of(context).size.height / 32)),
-                  ElevatedButton( ///Из камеры
+                  ElevatedButton(
+                    ///Из камеры
                     onPressed: () async {
                       Navigator.pop(context);
                       await getImage(ImageSource.camera);
