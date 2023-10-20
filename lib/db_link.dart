@@ -1,13 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LinkToScript{
   static String link = "";
 
   static gl() async{
-    final ds =
-    await FirebaseFirestore.instance.collection("link").doc("ssylka").get();
-    var linkData = ds.data();
-    link = linkData?["link"];
+    final supabase = Supabase.instance.client;
+    List<Map<String,dynamic>> data = await supabase
+        .from('link')
+        .select('id');
+    link = data[0]["id"];
   }
 }
