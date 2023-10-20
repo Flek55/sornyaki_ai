@@ -39,7 +39,7 @@ class StartState extends State<Start> {
   final ImagePicker picker = ImagePicker();
 
   Future parseMask() async{
-    http.Response pj = await http.get(Uri.parse("${url}fotochka"));
+    http.Response pj = await http.get(Uri.parse("${url.trim()}fotochka"));
     Uint8List maskbytes =  pj.bodyBytes;
     Directory root = await getTemporaryDirectory();
     String directoryPath = root.path + '/bozzetto_camera';
@@ -57,7 +57,7 @@ class StartState extends State<Start> {
   Future upload(File imageFile) async {
     var stream = http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
     var length = await imageFile.length();
-    var uri = Uri.parse(url);
+    var uri = Uri.parse(url.trim());
     var request = http.MultipartRequest("POST", uri);
     var multipartFile = http.MultipartFile('file', stream, length,
         filename: p.basename(imageFile.path));
