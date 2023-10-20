@@ -2,8 +2,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
@@ -74,7 +72,7 @@ class StartState extends State<Start> {
   ///Метод для отправки запроса на сервер. Запрос состоит из фото для обработки
   ///Как reponse получает json файл с ответом
   Future upload(File imageFile) async {
-    var stream = http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    var stream = http.ByteStream(imageFile.openRead());
     var length = await imageFile.length();
     var uri = Uri.parse(url.trim());
     var request = http.MultipartRequest("POST", uri);
