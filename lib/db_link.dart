@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+///Класс получает ссылку на сайт из базы данных
 class LinkToScript{
   static String link = "";
 

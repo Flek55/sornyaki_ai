@@ -14,12 +14,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
-  ]);
+  ]);///Делает приложение неповоротным на экране
   await Supabase.initialize(
     url: supabaseUrl,
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFidmVxeGNmcGNzZnNtbWFscHF5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5Nzc3ODMwNiwiZXhwIjoyMDEzMzU0MzA2fQ.zZsIop4oVbprQhCqxYHOGqyoPa4TAnXa0hb1R6I3Wa8',
-  );
-  await LinkToScript.gl();
+  );///Подключение к бд
+  await LinkToScript.gl();///Получение ссылки на сайт из бд
   runApp(MaterialApp(
     theme: theme(),
     builder: EasyLoading.init(),

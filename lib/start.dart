@@ -1,3 +1,4 @@
+///Основной файл в приложении, работает с сервером и пользователем
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -22,38 +23,49 @@ class StartState extends State<Start> {
   @override
   void initState() {
     url = LinkToScript.link;
+
+    ///Задаем значение ссылке на сайт, получается из бд
     super.initState();
   }
 
+  ///Маркеры отображения элементов интерфейса
   static bool isFileLoaded = false;
   static bool isResponsed = false;
+  bool _buttonsEnabled = true;
+  bool _isJsonHere = false;
+
+  ///Переменная для хранения полученных с сервера данных
   static Map<String, dynamic> jsondata = {};
+
+  ///массив байтов маски для дальнейшей записи и файл маски
   static Uint8List? maskbyteslist;
   static File? mask;
 
+  ///Файл отображаемый на главном экране приложения
   XFile? image;
-  static String url = "";
-  var purl = "";
-  bool _buttonsEnabled = true;
 
+  ///Ссылка на сайт
+  static String url = "";
+
+  ///Переменная для загрузки фото в приложение
   final ImagePicker picker = ImagePicker();
 
-  Future parseMask() async{
+  ///Метод для получения маски с сервера
+  Future parseMask() async {
     http.Response pj = await http.get(Uri.parse("${url.trim()}fotochka"));
-    Uint8List maskbytes =  pj.bodyBytes;
     Directory root = await getTemporaryDirectory();
-    String directoryPath = root.path + '/bozzetto_camera';
+    String directoryPath = root.path + '/returned_mask';
     await Directory(directoryPath).create(recursive: true);
     String filePath = '$directoryPath/received_data.jpg';
-    await File(filePath).writeAsBytes(maskbytes);
-    XFile p = XFile(filePath);
+    await File(filePath).writeAsBytes(pj.bodyBytes);
     setState(() {
-      image = p;
-      mask = File(p.path);
+      image = XFile(filePath);
+      mask = File(filePath);
     });
   }
 
-
+  ///Метод для отправки запроса на сервер. Запрос состоит из фото для обработки
+  ///Как reponse получает json файл с ответом
   Future upload(File imageFile) async {
     var stream = http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
     var length = await imageFile.length();
@@ -65,17 +77,20 @@ class StartState extends State<Start> {
     http.StreamedResponse response = await request.send();
     http.Response r = await http.Response.fromStream(response);
     jsondata = jsonDecode(r.body.toString());
+    await parseMask();
     setState(() {
       isResponsed = true;
+      _isJsonHere = true;
     });
-    await parseMask();
   }
 
+  ///Загрузка фото из галереи/камеры в приложение
   Future getImage(ImageSource media) async {
     var img = await picker.pickImage(source: media);
     if (img != null) {
       setState(() {
         image = img;
+        _isJsonHere = false;
       });
     }
     if (image != null) {
@@ -83,6 +98,7 @@ class StartState extends State<Start> {
     }
   }
 
+  ///Функция возвращает виджет, который доступен как '/' в приложении
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +108,7 @@ class StartState extends State<Start> {
         children: [
           Visibility(
             visible: isFileLoaded,
-            child: const Padding(padding: EdgeInsets.only(top: 80)),
+            child: const Padding(padding: EdgeInsets.only(top: 50)),
           ),
           Visibility(
             visible: !isFileLoaded,
@@ -104,7 +120,7 @@ class StartState extends State<Start> {
             child: const Padding(padding: EdgeInsets.only(top: 75)),
           ),
           _getLoadFileButton(),
-          image != null
+          image != null ///Вывод картинки на экран
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ClipRRect(
@@ -120,8 +136,20 @@ class StartState extends State<Start> {
               : const SizedBox(),
           Padding(
               padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height / 150)),
+          Visibility(
+            visible: _isJsonHere,
+            child: Text("Результат: ", style: TextStyle(fontSize: 19),),
+          ),
+          Visibility(
+            visible: !_isJsonHere,
+            child: Padding(padding: EdgeInsets.only(top: 22),)
+          ),
+          ///Группа кнопок под фото
+          Padding(
+              padding: EdgeInsets.only(
                   top: MediaQuery.of(context).size.height / 100)),
-          _getMainButtons(),
+          _getProcessAnotherPhotoButtons(),
           Padding(
               padding: EdgeInsets.only(
                   top: MediaQuery.of(context).size.height / 100)),
@@ -137,6 +165,7 @@ class StartState extends State<Start> {
     ));
   }
 
+  ///Введите текст в начале приложения
   _getChooseFile() {
     if (!isFileLoaded) {
       return const Row(
@@ -152,6 +181,7 @@ class StartState extends State<Start> {
     return const SizedBox();
   }
 
+  ///Icon-button для загрузки файла
   _getLoadFileButton() {
     if (!isFileLoaded) {
       return IconButton(
@@ -165,6 +195,7 @@ class StartState extends State<Start> {
     return const SizedBox();
   }
 
+  ///Кнопка для скачивания json-файла
   _getDownloadFileButton() {
     if (isResponsed) {
       return ElevatedButton(
@@ -182,6 +213,7 @@ class StartState extends State<Start> {
     return const SizedBox();
   }
 
+  ///Кнопка для скачивания маски, полученной от сервера
   _getDownloadPhotoButton() {
     if (isResponsed) {
       return ElevatedButton(
@@ -199,25 +231,29 @@ class StartState extends State<Start> {
     return const SizedBox();
   }
 
-  _getMainButtons() {
+  ///Кнопки Обработать и Другое фото
+  _getProcessAnotherPhotoButtons() {
     if (isFileLoaded) {
       return Column(children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: _buttonsEnabled?() async {
-                EasyLoading.show();
-                setState(() {
-                  _buttonsEnabled = false;
-                });
-                File file = File(image!.path);
-                await upload(file);
-                EasyLoading.dismiss();
-                setState(() {
-                  _buttonsEnabled = true;
-                });
-              }: null,
+              onPressed: _buttonsEnabled
+                  ? () async {  ///Блокировка кнопки и вызов функций
+                      EasyLoading.show();
+                      setState(() {
+                        _buttonsEnabled = false;
+                        _isJsonHere = false;
+                      });
+                      File file = File(image!.path);
+                      await upload(file);
+                      EasyLoading.dismiss();
+                      setState(() {
+                        _buttonsEnabled = true;
+                      });
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -234,9 +270,11 @@ class StartState extends State<Start> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: _buttonsEnabled?() {
-                chooseFilePopUp();
-              }:null,
+              onPressed: _buttonsEnabled
+                  ? () { ///Блокировка кнопки и вызов функций
+                      chooseFilePopUp();
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -251,6 +289,8 @@ class StartState extends State<Start> {
     return const SizedBox();
   }
 
+
+  //AlertDialog для выбора способа выбора фото (Из галереи/Из камеры)
   void chooseFilePopUp() {
     showDialog(
         context: context,
@@ -263,10 +303,10 @@ class StartState extends State<Start> {
               height: MediaQuery.of(context).size.height / 6,
               child: Column(
                 children: [
-                  ElevatedButton(
+                  ElevatedButton( ///Из галереи
                     onPressed: () async {
                       Navigator.pop(context);
-                      await getImage(ImageSource.gallery);
+                      var response = await getImage(ImageSource.gallery);
                     },
                     child: const Row(
                       children: [
@@ -278,10 +318,10 @@ class StartState extends State<Start> {
                   Padding(
                       padding: EdgeInsets.only(
                           top: MediaQuery.of(context).size.height / 32)),
-                  ElevatedButton(
+                  ElevatedButton( ///Из камеры
                     onPressed: () async {
                       Navigator.pop(context);
-                      await getImage(ImageSource.camera);
+                      var response = await getImage(ImageSource.camera);
                     },
                     child: const Row(
                       children: [

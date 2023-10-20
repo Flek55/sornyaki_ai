@@ -1,9 +1,11 @@
+///В файле описана тема приложения
 import 'package:flutter/material.dart';
+
 ThemeData theme(){
   return ThemeData(
       colorScheme: const ColorScheme(
           brightness: Brightness.light,
-          primary: Colors.blueAccent,
+          primary: Colors.green,
           onPrimary: Colors.black,
           secondary: Colors.white,
           onSecondary: Colors.white,
