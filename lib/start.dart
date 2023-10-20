@@ -1,14 +1,16 @@
 ///Основной файл в приложении, работает с сервером и пользователем
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:async/async.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+
 import 'db_link.dart';
 import 'files.dart';
 
@@ -122,9 +124,7 @@ class StartState extends State<Start> {
         schavel += 1;
       }
     }
-    setState(() {
-
-    });
+    setState(() {});
     return 1;
   }
 
